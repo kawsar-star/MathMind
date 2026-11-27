@@ -1,0 +1,8 @@
+{
+  "name": "MATHMIND AI",
+  "description": "Discover Mathematical Potential. Diagnose Learning Gaps. Master Mathematics. AI-powered adaptive mathematics intelligence, error diagnosis, remedial learning, and Olympiad arena.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

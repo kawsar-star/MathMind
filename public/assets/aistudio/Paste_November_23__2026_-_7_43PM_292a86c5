@@ -1,0 +1,1005 @@
+# MASTER DEVELOPMENT PROMPT: MATHMIND AI
+
+## AI-Powered Adaptive Mathematics Intelligence & Remedial Learning Platform
+
+Act as a world-class EdTech Product Architect, Senior Full-Stack Developer, AI Engineer, Mathematics Education Specialist, Learning Analytics Expert, UI/UX Designer, and Educational Psychometrician.
+
+Your mission is to design and develop a complete, intelligent, futuristic, highly interactive, production-oriented mathematics learning and assessment platform named **MATHMIND AI**.
+
+**Tagline:** Discover Mathematical Potential. Diagnose Learning Gaps. Master Mathematics.
+
+This must not be an ordinary mathematics learning application. Build an intelligent, adaptive, data-driven educational ecosystem that measures students' mathematical competencies, diagnoses their learning difficulties, generates personalized remedial learning paths, provides guided mathematical learning materials, and develops advanced mathematical reasoning and Olympiad skills.
+
+The platform must serve students, teachers, parents, school administrators, and super administrators.
+
+---
+
+# PART 1: TECHNOLOGY ARCHITECTURE
+
+Build a responsive, full-stack web application using:
+
+- Frontend: React + TypeScript.
+- UI: Tailwind CSS and reusable component architecture.
+- Animation: Framer Motion.
+- Charts: Recharts or equivalent interactive visualization library.
+- Icons: Lucide React.
+- Backend: Node.js server-side runtime.
+- Database: Firebase Cloud Firestore.
+- Authentication: Firebase Authentication with Google Sign-In and role-based access.
+- File Storage: Firebase Storage.
+- AI Integration: Google Gemini API through secure server-side endpoints.
+- Mathematical Rendering: KaTeX or MathJax.
+- Interactive Mathematics: SVG, Canvas and suitable mathematical visualization libraries.
+
+Use modular architecture with reusable components, separate services, hooks, utilities, database models, and API layers.
+
+Keep all Gemini API credentials and sensitive operations on the server. Never expose API keys in client-side code.
+
+Use real Firestore persistence, not just local state or mock data.
+
+Create appropriate Firebase security rules with strict role-based permissions and student-data isolation.
+
+The application should support future integration with GitHub, Netlify or Cloud Run deployment workflows.
+
+# PART 2: USER ROLES AND ACCESS CONTROL
+
+Create five distinct user roles.
+
+### 1. Student Portal
+- Personal profile.
+- Initial mathematics assessment.
+- Personalized learning dashboard.
+- Domain-wise skill analysis.
+- AI math tutor.
+- Remedial learning.
+- Quizzes and worksheets.
+- Mathematical reasoning laboratory.
+- Math Olympiad arena.
+- Achievement and progress tracking.
+
+### 2. Teacher Portal
+- Create and manage classes.
+- Register students.
+- Assign assessments.
+- Monitor student performance.
+- View domain-wise competency.
+- Identify learning gaps.
+- Generate remedial plans.
+- Assign worksheets and quizzes.
+- Track intervention outcomes.
+- Download student and class reports.
+
+### 3. Parent Portal
+- View child's learning progress.
+- View strengths and weaknesses.
+- Monitor learning activities.
+- Receive progress notifications.
+- View recommended home practice.
+- Access parent-friendly progress reports.
+
+### 4. School Administrator
+- Manage teachers, students and classes.
+- Monitor school-wide mathematics performance.
+- Compare class and grade performance.
+- View intervention effectiveness.
+- Generate school analytics reports.
+
+### 5. Super Administrator
+- Complete system control.
+- Manage schools and users.
+- Manage curriculum and age groups.
+- Configure assessment parameters.
+- Manage question banks.
+- Manage AI settings and usage limits.
+- Monitor platform performance.
+- Manage content, permissions and subscriptions.
+
+Implement strict role-based routing and permissions.
+
+# PART 3: AI MATHEMATICS ASSESSMENT ENGINE
+
+This is the core engine of MATHMIND AI.
+
+Create an intelligent assessment system that measures students' mathematical competencies based on age, grade, curriculum, and individual skill levels.
+
+### A. Student Onboarding
+
+Collect:
+- Student name and unique ID.
+- Date of birth and age.
+- Current grade/class.
+- School.
+- Preferred language.
+- Mathematics curriculum.
+- Previous mathematics learning experience.
+
+Calculate age automatically from date of birth.
+
+Provide age-group configuration, such as:
+- 5–6 years.
+- 7–8 years.
+- 9–10 years.
+- 11–12 years.
+- 13–14 years.
+- 15–16 years.
+- 17+ years.
+
+Allow administrators to customize these age bands.
+
+Do not assume that chronological age and grade-level competency are identical.
+
+### B. Mathematics Assessment Domains
+
+Create separate assessment modules for:
+
+1. Number Sense.
+2. Number Operations.
+3. Fractions, Decimals and Percentages.
+4. Algebraic Thinking.
+5. Geometry.
+6. Measurement.
+7. Ratio and Proportion.
+8. Data Handling and Statistics.
+9. Probability.
+10. Mathematical Reasoning.
+11. Pattern Recognition.
+12. Spatial and Visual Reasoning.
+
+Each domain must have multiple subskills.
+
+For example:
+
+Number Sense:
+- Number recognition.
+- Place value.
+- Number comparison.
+- Number ordering.
+- Estimation.
+- Mental mathematics.
+- Number patterns.
+
+Algebra:
+- Variable recognition.
+- Algebraic expressions.
+- Simplification.
+- Linear equations.
+- Mathematical modeling.
+- Generalization.
+
+Geometry:
+- Shape recognition.
+- Properties of shapes.
+- Angles.
+- Symmetry.
+- Perimeter.
+- Area.
+- Volume.
+- Spatial visualization.
+
+Mathematical Reasoning:
+- Logical deduction.
+- Pattern-based reasoning.
+- Multi-step problem solving.
+- Word problems.
+- Analytical thinking.
+- Mathematical argumentation.
+
+Make the domain and subskill structure configurable.
+
+### C. Adaptive Assessment Algorithm
+
+Implement Computer Adaptive Testing (CAT)-inspired assessment logic.
+
+The assessment should:
+1. Start with age-appropriate and grade-appropriate questions.
+2. Adjust difficulty based on previous responses.
+3. Increase difficulty after consistent correct responses.
+4. Decrease difficulty when repeated conceptual errors occur.
+5. Explore multiple subskills within each domain.
+6. Avoid excessive repetition of similar questions.
+7. Track accuracy, response time and difficulty.
+8. Identify mastery and misconception patterns.
+9. Generate domain-specific competency estimates.
+
+Provide the following difficulty levels:
+- Level 1: Foundational.
+- Level 2: Basic.
+- Level 3: Intermediate.
+- Level 4: Advanced.
+- Level 5: Expert.
+
+Support different question formats:
+- Multiple choice.
+- Multiple select.
+- Numerical response.
+- Fill in the blanks.
+- Matching.
+- True/False.
+- Visual mathematics.
+- Interactive geometry.
+- Word problems.
+- Explain-your-reasoning questions.
+
+Provide an assessment progress indicator, question navigation, timer where appropriate, pause/resume where allowed, and accessible interface.
+
+Do not use response time alone to judge mathematical ability.
+
+### D. Assessment Scoring
+
+Generate a score for every domain and subskill.
+
+Track:
+- Accuracy percentage.
+- Concept mastery.
+- Difficulty-adjusted performance.
+- Response time.
+- Consistency.
+- Reasoning quality.
+- Error patterns.
+
+Create five competency categories:
+
+1. Beginner.
+2. Developing.
+3. Proficient.
+4. Advanced.
+5. Expert.
+
+Use configurable and documented scoring thresholds.
+
+Do not present unvalidated scores as standardized age norms or intelligence measurements. Clearly distinguish observed performance, curriculum benchmarks, and statistically validated age norms.
+
+# PART 4: AI MATHEMATICAL INTELLIGENCE ANALYZER
+
+Create an advanced AI analysis engine.
+
+After assessment, generate an individual mathematical competency report.
+
+The AI should identify:
+
+- Strong mathematical domains.
+- Weak mathematical domains.
+- Missing prerequisite knowledge.
+- Conceptual misunderstandings.
+- Calculation errors.
+- Logical reasoning difficulties.
+- Difficulty with multi-step problems.
+- Speed and accuracy differences.
+- Learning consistency.
+- Recommended next learning objectives.
+
+### Intelligent Error Diagnosis
+
+Classify errors into categories:
+
+1. Conceptual misconception.
+2. Calculation mistake.
+3. Misunderstanding of the question.
+4. Incorrect mathematical operation.
+5. Procedural error.
+6. Logical reasoning error.
+7. Missing prerequisite knowledge.
+8. Careless error.
+
+Provide evidence from actual student responses.
+
+Never claim a specific misconception without sufficient evidence. Use confidence levels and request additional diagnostic questions when needed.
+
+### AI Diagnostic Report
+
+Generate a structured report containing:
+
+- Overall Mathematics Competency.
+- Domain-wise scores.
+- Subskill analysis.
+- Learning gap identification.
+- Strength profile.
+- Weakness profile.
+- Error diagnosis.
+- Recommended intervention.
+- Suggested learning duration.
+- Next assessment recommendation.
+
+Allow PDF report generation.
+
+# PART 5: AI REMEDIAL LEARNING ENGINE
+
+Develop a powerful personalized remedial learning system.
+
+This module should automatically convert assessment results into actionable learning plans.
+
+### Personalized Learning Path
+
+For each student:
+
+1. Identify weak domains.
+2. Identify missing prerequisite concepts.
+3. Prioritize learning gaps.
+4. Create sequential learning objectives.
+5. Recommend suitable learning materials.
+6. Generate guided practice.
+7. Conduct short quizzes.
+8. Reassess mastery.
+9. Update the learning path.
+
+Create three intervention levels:
+
+**Level A: Foundational Support**
+- Simple explanations.
+- Visual examples.
+- Everyday-life connections.
+- Guided demonstrations.
+- Basic practice.
+
+**Level B: Conceptual Reinforcement**
+- Step-by-step lessons.
+- Worked examples.
+- Interactive practice.
+- Error correction.
+- Mixed exercises.
+
+**Level C: Advanced Development**
+- Complex problems.
+- Multi-step reasoning.
+- Mathematical challenges.
+- Open-ended questions.
+- Olympiad preparation.
+
+### Mastery-Based Learning
+
+Implement a mastery tracking system.
+
+A student should move to the next learning objective only after demonstrating sufficient understanding.
+
+Use configurable mastery thresholds, for example:
+- Below 50%: Re-teach the concept.
+- 50–69%: Guided reinforcement.
+- 70–84%: Independent practice.
+- 85% or above: Mastery check and progression.
+
+These are initial configurable thresholds, not universal educational standards.
+
+If mastery is not achieved, automatically recommend another explanation, a simpler prerequisite lesson, or alternative practice.
+
+Create a visual learning path showing completed, current and upcoming objectives.
+
+# PART 6: SMART MATHEMATICS LEARNING PORTAL
+
+Create a personalized student learning environment.
+
+### A. AI Math Tutor
+
+Develop an interactive AI mathematics tutor.
+
+The tutor should:
+- Explain mathematics in simple language.
+- Understand the student's grade and competency level.
+- Solve problems step by step.
+- Explain why each step is necessary.
+- Offer hints before revealing answers.
+- Detect common mistakes.
+- Ask follow-up questions.
+- Encourage independent thinking.
+- Provide alternative solution methods.
+- Generate similar practice questions.
+
+Include three learning modes:
+
+1. Teach Me.
+2. Give Me a Hint.
+3. Check My Solution.
+
+The AI must behave like a supportive mathematics teacher, not merely an answer generator.
+
+### B. Step-by-Step Math Solver
+
+Allow students to enter mathematical questions through:
+- Text input.
+- Mathematical expressions.
+- Image upload, where supported.
+
+Show:
+- Problem interpretation.
+- Relevant formula.
+- Step-by-step solution.
+- Explanation of each step.
+- Final answer.
+- Alternative methods.
+- Similar practice problem.
+
+Use proper mathematical notation and rendering.
+
+### C. Smart Quiz Center
+
+Generate quizzes based on:
+- Age.
+- Grade.
+- Domain.
+- Subskill.
+- Competency level.
+- Previous mistakes.
+- Learning objectives.
+
+Provide:
+- Daily practice.
+- Topic-based quizzes.
+- Adaptive quizzes.
+- Revision quizzes.
+- Challenge quizzes.
+- Timed quizzes.
+
+Generate instant feedback and detailed explanations.
+
+### D. Guided Tutorial Library
+
+Create a structured mathematics content library.
+
+Every lesson should include:
+1. Learning objective.
+2. Prerequisite knowledge.
+3. Simple concept introduction.
+4. Visual explanation.
+5. Worked example.
+6. Guided practice.
+7. Independent practice.
+8. Knowledge check.
+9. Summary.
+
+### E. Interactive Mathematics Laboratory
+
+Create interactive visual mathematics tools:
+
+- Number line explorer.
+- Fraction visualizer.
+- Decimal visualizer.
+- Algebra balance model.
+- Geometry construction board.
+- Angle measurement tool.
+- Area and perimeter explorer.
+- 3D shapes and volume visualizer.
+- Coordinate plane.
+- Graph plotting tool.
+- Pattern exploration.
+- Probability simulator.
+- Data visualization laboratory.
+
+These should be functional interactive tools, not static images.
+
+### F. AI Worksheet Generator
+
+Allow teachers and students to generate customized worksheets.
+
+Parameters:
+- Age group.
+- Grade.
+- Mathematics domain.
+- Subskill.
+- Difficulty.
+- Number of questions.
+- Question format.
+- Learning objective.
+
+Generate:
+- Practice worksheets.
+- Remedial worksheets.
+- Revision worksheets.
+- Advanced worksheets.
+- Olympiad worksheets.
+
+Include answer keys and detailed solutions in a separate section.
+
+Support printable PDF export.
+
+# PART 7: MATH OLYMPIAD ARENA
+
+Create a dedicated and visually exciting Mathematics Olympiad practice environment.
+
+This must be a major feature of MATHMIND AI.
+
+### Olympiad Categories
+
+1. Number Theory.
+2. Algebra.
+3. Geometry.
+4. Combinatorics.
+5. Logical Reasoning.
+6. Mathematical Puzzles.
+7. Pattern and Sequence.
+8. Probability.
+9. Creative Problem Solving.
+
+### Difficulty Levels
+
+- Explorer.
+- Beginner Olympiad.
+- Intermediate Olympiad.
+- Advanced Olympiad.
+- National Challenge.
+- International Challenge.
+
+### Olympiad Features
+
+- Daily Olympiad Challenge.
+- Question of the Day.
+- Timed Practice.
+- Topic-wise Training.
+- Full Mock Contest.
+- Weekly Challenge.
+- Monthly Championship.
+- Leaderboard.
+- Personal Best.
+- Achievement Badges.
+- Solution Discussion.
+- Hint System.
+- Detailed Problem Analysis.
+
+Do not reward only speed. Include reasoning quality, correctness and problem-solving approach.
+
+Create an AI Olympiad Coach that provides progressive hints without immediately revealing the solution.
+
+Generate original mathematical problems with verified answers and solutions. Validate generated problems before adding them to the permanent question bank.
+
+Clearly label AI-generated practice questions and distinguish them from official competition questions.
+
+# PART 8: FUTURISTIC AI ANALYTICS DASHBOARD
+
+Design a world-class interactive mathematical intelligence dashboard.
+
+This is one of the most important components of the application.
+
+Use a premium futuristic visual language.
+
+### Dashboard Visual Style
+
+- Dark navy background.
+- Electric cyan highlights.
+- Purple and blue gradients.
+- Glassmorphism cards.
+- Subtle neon borders.
+- Animated data visualizations.
+- Smooth micro-interactions.
+- Clean typography.
+- Premium data visualization.
+- Responsive layout.
+
+Avoid excessive decoration. Maintain readability and professional educational usability.
+
+### Student Intelligence Dashboard
+
+Display:
+
+1. Overall Math Competency Score.
+2. Age and Grade Benchmark.
+3. Domain-wise Radar Chart.
+4. Skill Mastery Heatmap.
+5. Strength vs Weakness Comparison.
+6. Learning Gap Map.
+7. Assessment History.
+8. Accuracy vs Response Time.
+9. Learning Progress Timeline.
+10. Remedial Completion Rate.
+11. Predicted Learning Progress.
+12. AI Recommended Next Steps.
+
+### Advanced Analytics
+
+Implement interactive filters:
+- Date range.
+- Grade.
+- Class.
+- Student.
+- Domain.
+- Subskill.
+- Assessment type.
+
+Every chart should be clickable and support drill-down analysis.
+
+### Visualizations
+
+Use:
+- Radar charts.
+- Bar charts.
+- Line charts.
+- Heatmaps.
+- Progress rings.
+- Distribution charts.
+- Trend graphs.
+- Sankey-style learning gap flow where appropriate.
+- Skill dependency graphs.
+
+### Class and School Analytics
+
+Teachers and administrators should be able to view:
+
+- Class average competency.
+- Domain-wise class performance.
+- Percentage of students below benchmark.
+- Learning gap distribution.
+- Common misconceptions.
+- Students needing intervention.
+- High-performing students.
+- Progress after remedial intervention.
+- Assessment participation.
+- Grade-to-grade comparison.
+
+Add AI-generated actionable insights.
+
+Example:
+
+"Approximately 35% of this class needs additional support in fractions. The most frequent difficulty is equivalent fractions. Recommended action: assign a visual fraction lesson followed by a guided practice worksheet."
+
+Generate insights only from actual stored data. Clearly mark small sample sizes and uncertainty.
+
+# PART 9: TEACHER COMMAND CENTER
+
+Create an advanced teacher workspace.
+
+Features:
+- Class management.
+- Student management.
+- Assessment assignment.
+- Custom quiz creation.
+- Worksheet assignment.
+- Learning path assignment.
+- Individual competency reports.
+- Group-level weakness analysis.
+- Intervention tracking.
+- Progress monitoring.
+- Parent report generation.
+- PDF and CSV exports.
+
+Add an AI Teaching Assistant.
+
+It should recommend:
+- Which concepts to reteach.
+- Which students need support.
+- Which students need enrichment.
+- What type of activity to assign.
+- How to group students by learning needs.
+
+Allow teachers to override AI recommendations.
+
+# PART 10: QUESTION BANK & CURRICULUM MANAGEMENT
+
+Build a comprehensive question bank.
+
+Each question should have structured metadata:
+
+- Question ID.
+- Domain.
+- Subskill.
+- Age range.
+- Grade.
+- Curriculum.
+- Learning objective.
+- Difficulty.
+- Question type.
+- Correct answer.
+- Explanation.
+- Common misconceptions.
+- Prerequisite skill.
+- Estimated response time.
+- Source.
+- Validation status.
+
+Create an admin interface to add, edit, approve, import and organize questions.
+
+Support CSV and spreadsheet imports.
+
+Provide a content review workflow so AI-generated questions are not automatically treated as validated educational content.
+
+Include configurable curriculum mapping, initially supporting Bangladesh NCTB mathematics curricula, with the ability to add other curricula.
+
+Do not invent official NCTB learning outcomes. Allow administrators to upload and verify curriculum documents.
+
+# PART 11: DATABASE STRUCTURE
+
+Design a scalable Firestore database.
+
+Create suitable collections:
+
+- users
+- students
+- teachers
+- parents
+- schools
+- classes
+- enrollments
+- studentProfiles
+- assessmentBlueprints
+- assessments
+- questions
+- questionResponses
+- assessmentResults
+- domainScores
+- skillProfiles
+- learningGaps
+- remedialPlans
+- learningObjectives
+- learningMaterials
+- lessons
+- worksheets
+- quizzes
+- quizAttempts
+- olympiadProblems
+- olympiadAttempts
+- achievements
+- progressSnapshots
+- teacherAssignments
+- notifications
+- systemSettings
+- auditLogs
+
+Use appropriate document references, indexes, pagination and data validation.
+
+Ensure that students can only access their own records, teachers can access authorized classes, parents can access linked children, and administrators can access only their permitted organizational scope.
+
+Do not expose student data publicly through leaderboards.
+
+# PART 12: AI INTELLIGENCE AND SYSTEM PROMPTS
+
+Develop separate AI agents or logically separated AI services for:
+
+1. Mathematics Assessment Generator.
+2. Mathematical Error Diagnostician.
+3. Personalized Remedial Planner.
+4. AI Mathematics Tutor.
+5. Step-by-Step Solver.
+6. Quiz Generator.
+7. Worksheet Generator.
+8. Olympiad Coach.
+9. Learning Analytics Assistant.
+10. Teacher Assistant.
+
+Each service must receive structured context, including relevant student age, grade, learning objective, domain, competency level and available assessment evidence.
+
+Use structured JSON outputs with validation.
+
+AI must:
+- Avoid hallucinating mathematical facts.
+- Verify mathematical calculations.
+- Use age-appropriate language.
+- Explain solutions accurately.
+- Respect curriculum constraints.
+- Never expose another student's personal information.
+- Avoid giving away answers immediately in guided-learning mode.
+
+Implement a mathematical verification layer using deterministic calculations wherever practical.
+
+Do not rely exclusively on generative AI for scoring, statistical analysis or mathematical answer validation.
+
+# PART 13: GAMIFICATION AND STUDENT MOTIVATION
+
+Implement an engaging reward system.
+
+Include:
+- XP points.
+- Daily learning streaks.
+- Skill badges.
+- Mastery certificates.
+- Weekly goals.
+- Learning missions.
+- Challenge levels.
+- Achievement timeline.
+- Personal best records.
+- Progress milestones.
+
+Reward persistence, improvement and learning mastery, not just speed.
+
+Avoid unhealthy competitive pressure.
+
+# PART 14: NOTIFICATIONS AND REPORTING
+
+Create:
+- Assessment completion notifications.
+- Remedial task reminders.
+- Learning milestone notifications.
+- Weekly student progress summaries.
+- Teacher intervention reminders.
+- Parent progress updates.
+
+Generate downloadable reports:
+
+1. Individual Mathematics Competency Report.
+2. Domain-wise Assessment Report.
+3. Remedial Intervention Report.
+4. Student Learning Progress Report.
+5. Class Performance Report.
+6. School Mathematics Intelligence Report.
+7. Olympiad Performance Report.
+
+Provide PDF and CSV export where appropriate.
+
+# PART 15: DESIGN SYSTEM AND USER EXPERIENCE
+
+Create a premium, futuristic, sophisticated EdTech experience.
+
+Design reference:
+A combination of modern AI research dashboards, next-generation educational platforms, and premium SaaS analytics applications.
+
+### Main Navigation
+
+Student:
+- Overview
+- My Assessment
+- Math Intelligence
+- My Learning Path
+- AI Math Tutor
+- Practice & Quiz
+- Math Lab
+- Worksheets
+- Olympiad Arena
+- Achievements
+- My Reports
+
+Teacher:
+- Overview
+- My Classes
+- Students
+- Assessment Center
+- Competency Analytics
+- Remedial Management
+- Question Bank
+- Worksheet Studio
+- Reports
+
+Administrator:
+- System Overview
+- Schools
+- Users
+- Curriculum
+- Assessment Configuration
+- Content Management
+- AI Configuration
+- Analytics
+- Security & Audit
+
+### Design Requirements
+
+- Fully responsive desktop, tablet and mobile layouts.
+- Bengali and English language support.
+- Bangla-friendly Unicode typography.
+- Consistent spacing and component system.
+- Accessible color contrast.
+- Dark and light themes.
+- Interactive sidebar.
+- Functional navigation.
+- Loading states.
+- Empty states.
+- Error states.
+- Confirmation dialogs.
+- Toast notifications.
+- Search and filters.
+- Keyboard accessibility.
+
+The default student interface should be friendly, engaging and easy to understand. The teacher and administrator interfaces should be information-rich and professional.
+
+# PART 16: SECURITY, PRIVACY AND RELIABILITY
+
+This platform handles children's educational data.
+
+Implement:
+- Secure authentication.
+- Role-based access control.
+- Firestore security rules.
+- Server-side validation.
+- Secure AI API calls.
+- Rate limiting.
+- Audit logging.
+- Data minimization.
+- Parent/guardian consent workflows where applicable.
+- Configurable data retention.
+- Secure file access.
+- Protection against unauthorized data access.
+
+Never use public student names or identifiable student records in public rankings.
+
+Make AI recommendations explainable and allow educators to review important decisions.
+
+# PART 17: DEVELOPMENT AND IMPLEMENTATION STRATEGY
+
+Do not build a static UI prototype.
+
+Build a genuinely functional full-stack application with persistent database storage and working navigation.
+
+Follow these development stages:
+
+### Stage 1: Foundation
+- Create the application architecture.
+- Set up React and TypeScript.
+- Create the design system.
+- Configure Firebase.
+- Implement authentication.
+- Create role-based dashboards.
+- Set up database models.
+
+### Stage 2: Assessment Engine
+- Build the question bank.
+- Create domain-based assessment.
+- Implement adaptive difficulty.
+- Build scoring and analysis.
+- Save results in Firestore.
+
+### Stage 3: AI Intelligence
+- Implement error diagnosis.
+- Develop the AI tutor.
+- Build personalized learning plans.
+- Implement AI worksheet and quiz generation.
+
+### Stage 4: Learning Ecosystem
+- Build guided tutorials.
+- Create interactive math tools.
+- Implement remedial learning.
+- Develop progress tracking.
+
+### Stage 5: Olympiad Arena
+- Create the problem bank.
+- Implement timed challenges.
+- Build the Olympiad coach.
+- Add mock contests and achievements.
+
+### Stage 6: Analytics
+- Create advanced dashboards.
+- Add interactive charts.
+- Implement drill-down analytics.
+- Build teacher and school reports.
+
+### Stage 7: Quality Assurance
+- Test every major workflow.
+- Verify mathematical answers.
+- Test database persistence.
+- Test security and permissions.
+- Test responsive design.
+- Fix all critical errors.
+
+# PART 18: ACCEPTANCE CRITERIA
+
+The application will be considered successful only if:
+
+1. Students can register and complete their profiles.
+2. Students can take age-appropriate mathematics assessments.
+3. Assessments cover separate mathematical domains.
+4. Difficulty can adapt to student performance.
+5. The platform generates domain-wise competency reports.
+6. AI identifies evidence-based learning gaps.
+7. The remedial engine creates personalized learning paths.
+8. Students can access guided learning materials.
+9. AI Math Tutor provides step-by-step explanations.
+10. Quizzes and worksheets function correctly.
+11. Interactive math tools work.
+12. Olympiad practice is fully functional.
+13. Teachers can manage classes and students.
+14. Parents can monitor authorized student progress.
+15. Analytics dashboards display real database information.
+16. Reports can be exported.
+17. User roles and permissions work correctly.
+18. The application is responsive and accessible.
+19. No critical navigation buttons are decorative or nonfunctional.
+20. Student records persist after refresh and across sessions.
+
+# FINAL DEVELOPMENT INSTRUCTION
+
+Start by building a visually impressive, fully navigable application with the complete architecture and a functional core.
+
+Prioritize these working features first:
+
+1. Authentication and role-based dashboards.
+2. Student onboarding.
+3. Domain-based mathematics assessment.
+4. Assessment scoring and analysis.
+5. Personalized remedial learning.
+6. AI Math Tutor.
+7. Mathematics practice and Olympiad Arena.
+8. Futuristic analytics dashboard.
+
+Use realistic demo data only where necessary, clearly label it as sample data, and never mix sample data with actual student records.
+
+Do not create fake analytics or simulated AI results and present them as real.
+
+Build every module with scalable architecture so additional functionality can be added without rewriting the application.
+
+Before completing, test all important user journeys, fix runtime errors, verify database operations, and ensure that all visible controls perform their intended functions.
+
+The final result should feel like a next-generation AI-powered mathematical intelligence platform, not a conventional school mathematics website.
+
+**Product Vision: MATHMIND AI — Every Student Has a Different Mathematical Journey. Our AI Discovers It, Understands It, and Helps It Grow.**

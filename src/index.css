@@ -1,0 +1,301 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-display: 'Plus Jakarta Sans', 'Noto Sans Bengali', system-ui, sans-serif;
+    --font-body: 'DM Sans', 'Noto Sans Bengali', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+
+  body {
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-mono, .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom subtle scrollbars for dark & light theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.45);
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+}
+
+/* ============================================================
+   3D Glassmorphic Design System (Light & Dark Dual Theme)
+   ============================================================ */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-elevated: rgba(255, 255, 255, 0.84);
+  --glass-bg-subtle: rgba(248, 250, 252, 0.62);
+  --glass-chrome-bg: rgba(255, 255, 255, 0.76);
+  --glass-border: rgba(203, 213, 225, 0.78);
+  --glass-highlight: rgba(255, 255, 255, 0.95);
+  --glass-bevel-bottom: rgba(148, 163, 184, 0.24);
+  --glass-shadow:
+    0 18px 42px -18px rgba(15, 23, 42, 0.14),
+    0 6px 16px -6px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 -1px 0 var(--glass-bevel-bottom);
+  --glass-shadow-hover:
+    0 24px 52px -16px rgba(6, 182, 212, 0.16),
+    0 10px 24px -8px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 -1px 0 rgba(6, 182, 212, 0.22);
+  --glass-tile-shadow:
+    0 10px 26px -14px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    inset 0 -1px 0 rgba(148, 163, 184, 0.18);
+}
+
+.dark {
+  --glass-bg: rgba(13, 21, 38, 0.64);
+  --glass-bg-elevated: rgba(17, 27, 48, 0.76);
+  --glass-bg-subtle: rgba(10, 16, 30, 0.56);
+  --glass-chrome-bg: rgba(11, 17, 32, 0.72);
+  --glass-border: rgba(148, 163, 184, 0.16);
+  --glass-highlight: rgba(255, 255, 255, 0.12);
+  --glass-bevel-bottom: rgba(2, 6, 23, 0.55);
+  --glass-shadow:
+    0 22px 48px -18px rgba(2, 6, 23, 0.78),
+    0 8px 20px -8px rgba(6, 182, 212, 0.09),
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 -1px 0 var(--glass-bevel-bottom);
+  --glass-shadow-hover:
+    0 28px 58px -16px rgba(2, 6, 23, 0.85),
+    0 10px 28px -6px rgba(6, 182, 212, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(6, 182, 212, 0.22);
+  --glass-tile-shadow:
+    0 12px 28px -14px rgba(2, 6, 23, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.11),
+    inset 0 -1px 0 rgba(2, 6, 23, 0.48);
+}
+
+.glass-chrome {
+  background: var(--glass-chrome-bg);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+}
+
+.glass-panel-3d {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+  box-shadow: var(--glass-shadow);
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 220ms ease;
+}
+
+.glass-tile-3d {
+  background: var(--glass-bg-subtle);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(12px) saturate(145%);
+  -webkit-backdrop-filter: blur(12px) saturate(145%);
+  box-shadow: var(--glass-tile-shadow);
+  transition:
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.glass-tile-3d:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.glass-tile-3d:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.glass-btn-3d {
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 10px 24px -10px rgba(6, 182, 212, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    inset 0 -2px 0 rgba(8, 51, 68, 0.28);
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 180ms ease;
+}
+
+.glass-btn-3d::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 100%
+  );
+  transform: translateX(-160%) skewX(-18deg);
+  transition: transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.glass-btn-3d:hover {
+  transform: translateY(-1.5px);
+  box-shadow:
+    0 14px 28px -10px rgba(6, 182, 212, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -2px 0 rgba(8, 51, 68, 0.3);
+}
+
+.glass-btn-3d:hover::after {
+  transform: translateX(320%) skewX(-18deg);
+}
+
+.glass-btn-3d:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.glass-btn-violet {
+  box-shadow:
+    0 10px 24px -10px rgba(139, 92, 246, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    inset 0 -2px 0 rgba(76, 29, 149, 0.28);
+}
+
+.glass-btn-emerald {
+  box-shadow:
+    0 10px 24px -10px rgba(16, 185, 129, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    inset 0 -2px 0 rgba(6, 78, 59, 0.28);
+}
+
+.glass-btn-amber {
+  box-shadow:
+    0 10px 24px -10px rgba(245, 158, 11, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    inset 0 -2px 0 rgba(120, 53, 15, 0.28);
+}
+
+.student-hero-gradient {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(14, 165, 233, 0.16), transparent 45%),
+    radial-gradient(circle at 88% 15%, rgba(168, 85, 247, 0.14), transparent 46%),
+    radial-gradient(circle at 70% 90%, rgba(16, 185, 129, 0.14), transparent 48%),
+    radial-gradient(circle at 20% 85%, rgba(245, 158, 11, 0.12), transparent 44%),
+    var(--glass-bg);
+}
+
+.dark .student-hero-gradient {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(6, 182, 212, 0.18), transparent 48%),
+    radial-gradient(circle at 88% 15%, rgba(168, 85, 247, 0.16), transparent 48%),
+    radial-gradient(circle at 70% 90%, rgba(16, 185, 129, 0.15), transparent 50%),
+    radial-gradient(circle at 20% 85%, rgba(245, 158, 11, 0.12), transparent 46%),
+    var(--glass-bg);
+}
+
+.colorful-progress-bar {
+  background: linear-gradient(90deg, #06b6d4 0%, #6366f1 35%, #ec4899 68%, #10b981 100%);
+}
+
+.glass-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.dark .glass-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+}
+
+@keyframes orbDriftA {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(28px, -18px, 0) scale(1.06);
+  }
+}
+
+@keyframes orbDriftB {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-24px, 22px, 0) scale(1.05);
+  }
+}
+
+@keyframes floatGentle3D {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+.animate-orb-a {
+  animation: orbDriftA 18s ease-in-out infinite;
+}
+
+.animate-orb-b {
+  animation: orbDriftB 22s ease-in-out infinite;
+}
+
+.animate-float-gentle {
+  animation: floatGentle3D 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-orb-a,
+  .animate-orb-b,
+  .animate-float-gentle {
+    animation: none !important;
+  }
+  .glass-tile-3d:hover,
+  .glass-btn-3d:hover {
+    transform: none !important;
+  }
+  .glass-btn-3d::after {
+    display: none !important;
+  }
+}
+

@@ -1,0 +1,638 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: deny everything by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Primitives ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(uid) {
+      return isVerified() && request.auth.uid == uid;
+    }
+
+    function isBootstrappedAdmin() {
+      return isVerified() && request.auth.token.email == 'pd.emu2028@gmail.com';
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() || (
+        isVerified()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['super_admin', 'school_admin']
+      );
+    }
+
+    function isTeacher() {
+      return isVerified()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+    }
+
+    // --- Validation Blueprints ---
+    function isValidUserAccount(data) {
+      return data.keys().hasAll(['uid', 'displayName', 'role', 'preferredLanguage', 'theme', 'onboardingCompleted', 'xp', 'streak', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'role', 'preferredLanguage', 'studyMedium', 'theme', 'schoolId', 'onboardingCompleted', 'xp', 'streak', 'longestStreak', 'lastActiveDate', 'streakDates', 'createdAt', 'updatedAt'])
+        && isValidId(data.uid)
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 120
+        && data.role in ['student', 'teacher', 'parent', 'school_admin', 'super_admin']
+        && data.preferredLanguage in ['en', 'bn']
+        && (!('studyMedium' in data) || data.studyMedium in ['bangla_medium', 'english_version'])
+        && data.theme in ['dark', 'light']
+        && (!('schoolId' in data) || (data.schoolId is string && data.schoolId.size() <= 128 && data.schoolId.matches('^[a-zA-Z0-9_\\-]*$')))
+        && data.onboardingCompleted is bool
+        && data.xp is number && data.xp >= 0 && data.xp <= 10000000
+        && data.streak is number && data.streak >= 0 && data.streak <= 10000
+        && (!('longestStreak' in data) || (data.longestStreak is number && data.longestStreak >= 0 && data.longestStreak <= 10000))
+        && (!('lastActiveDate' in data) || (data.lastActiveDate is string && data.lastActiveDate.size() >= 8 && data.lastActiveDate.size() <= 20 && data.lastActiveDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')))
+        && (!('streakDates' in data) || (data.streakDates is list && data.streakDates.size() <= 14 && (data.streakDates.size() == 0 || data.streakDates[0] is string)))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidUserPrivateInfo(data) {
+      return data.keys().hasAll(['uid', 'email', 'guardianConsent', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'email', 'guardianEmail', 'guardianConsent', 'updatedAt'])
+        && isValidId(data.uid)
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 200
+        && (!('guardianEmail' in data) || (data.guardianEmail is string && data.guardianEmail.size() <= 200))
+        && data.guardianConsent is bool
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidStudentProfile(data) {
+      return data.keys().hasAll(['userId', 'studentCode', 'name', 'dob', 'age', 'ageBand', 'grade', 'curriculum', 'preferredLanguage', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'studentCode', 'name', 'dob', 'age', 'ageBand', 'grade', 'schoolName', 'schoolId', 'curriculum', 'preferredLanguage', 'studyMedium', 'priorExperience', 'parentUid', 'assignedTeacherId', 'overallScore', 'competencyCategory', 'xp', 'streak', 'longestStreak', 'lastActiveDate', 'weeklyGoalMinutes', 'completedMinutes', 'createdAt', 'updatedAt'])
+        && isValidId(data.userId)
+        && data.studentCode is string && data.studentCode.size() >= 3 && data.studentCode.size() <= 40 && data.studentCode.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && data.dob is string && data.dob.size() >= 8 && data.dob.size() <= 20
+        && data.age is number && data.age >= 3 && data.age <= 99
+        && data.ageBand is string && data.ageBand.size() >= 2 && data.ageBand.size() <= 32
+        && data.grade is string && data.grade.size() >= 1 && data.grade.size() <= 40
+        && (!('schoolName' in data) || (data.schoolName is string && data.schoolName.size() <= 160))
+        && (!('schoolId' in data) || (data.schoolId is string && data.schoolId.size() <= 128))
+        && data.curriculum is string && data.curriculum.size() >= 1 && data.curriculum.size() <= 80
+        && data.preferredLanguage in ['en', 'bn']
+        && (!('studyMedium' in data) || data.studyMedium in ['bangla_medium', 'english_version'])
+        && (!('priorExperience' in data) || (data.priorExperience is string && data.priorExperience.size() <= 500))
+        && (!('parentUid' in data) || (data.parentUid is string && data.parentUid.size() <= 128))
+        && (!('assignedTeacherId' in data) || (data.assignedTeacherId is string && data.assignedTeacherId.size() <= 128))
+        && (!('overallScore' in data) || (data.overallScore is number && data.overallScore >= 0 && data.overallScore <= 100))
+        && (!('competencyCategory' in data) || data.competencyCategory in ['Beginner', 'Developing', 'Proficient', 'Advanced', 'Expert'])
+        && (!('xp' in data) || (data.xp is number && data.xp >= 0))
+        && (!('streak' in data) || (data.streak is number && data.streak >= 0 && data.streak <= 10000))
+        && (!('longestStreak' in data) || (data.longestStreak is number && data.longestStreak >= 0 && data.longestStreak <= 10000))
+        && (!('lastActiveDate' in data) || (data.lastActiveDate is string && data.lastActiveDate.size() >= 8 && data.lastActiveDate.size() <= 20 && data.lastActiveDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')))
+        && (!('weeklyGoalMinutes' in data) || (data.weeklyGoalMinutes is number && data.weeklyGoalMinutes >= 0 && data.weeklyGoalMinutes <= 10080))
+        && (!('completedMinutes' in data) || (data.completedMinutes is number && data.completedMinutes >= 0 && data.completedMinutes <= 10080))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidClassRoom(data) {
+      return data.keys().hasAll(['teacherId', 'teacherName', 'name', 'grade', 'curriculum', 'studentCount', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['teacherId', 'teacherName', 'name', 'grade', 'curriculum', 'schoolId', 'studentCount', 'createdAt', 'updatedAt'])
+        && isValidId(data.teacherId)
+        && data.teacherName is string && data.teacherName.size() >= 1 && data.teacherName.size() <= 120
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && data.grade is string && data.grade.size() >= 1 && data.grade.size() <= 40
+        && data.curriculum is string && data.curriculum.size() >= 1 && data.curriculum.size() <= 80
+        && (!('schoolId' in data) || (data.schoolId is string && data.schoolId.size() <= 128))
+        && data.studentCount is number && data.studentCount >= 0 && data.studentCount <= 500
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidClassEnrollment(data) {
+      return data.keys().hasAll(['classId', 'studentUid', 'studentName', 'teacherId', 'status', 'enrolledAt'])
+        && data.keys().hasOnly(['classId', 'studentUid', 'studentName', 'teacherId', 'status', 'enrolledAt'])
+        && isValidId(data.classId)
+        && isValidId(data.studentUid)
+        && data.studentName is string && data.studentName.size() >= 1 && data.studentName.size() <= 120
+        && isValidId(data.teacherId)
+        && data.status in ['active', 'archived']
+        && data.enrolledAt is timestamp;
+    }
+
+    function isValidMathQuestion(data) {
+      return data.keys().hasAll(['domain', 'subskill', 'ageBand', 'grade', 'curriculum', 'difficulty', 'type', 'prompt', 'correctAnswer', 'explanation', 'source', 'validationStatus', 'createdBy', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['domain', 'subskill', 'ageBand', 'grade', 'curriculum', 'learningObjective', 'difficulty', 'type', 'prompt', 'promptBn', 'options', 'correctAnswer', 'explanation', 'prerequisiteSkill', 'estimatedSeconds', 'source', 'validationStatus', 'createdBy', 'createdAt', 'updatedAt'])
+        && data.domain is string && data.domain.size() >= 2 && data.domain.size() <= 80
+        && data.subskill is string && data.subskill.size() >= 2 && data.subskill.size() <= 100
+        && data.ageBand is string && data.ageBand.size() >= 2 && data.ageBand.size() <= 32
+        && data.grade is string && data.grade.size() >= 1 && data.grade.size() <= 40
+        && data.curriculum is string && data.curriculum.size() >= 1 && data.curriculum.size() <= 80
+        && (!('learningObjective' in data) || (data.learningObjective is string && data.learningObjective.size() <= 300))
+        && data.difficulty is number && data.difficulty >= 1 && data.difficulty <= 5
+        && data.type in ['mcq', 'multi_select', 'numerical', 'fill_blank', 'true_false', 'word_problem', 'reasoning']
+        && data.prompt is string && data.prompt.size() >= 2 && data.prompt.size() <= 2000
+        && (!('promptBn' in data) || (data.promptBn is string && data.promptBn.size() <= 2000))
+        && (!('options' in data) || (data.options is list && data.options.size() <= 8 && (data.options.size() == 0 || data.options[0] is string)))
+        && data.correctAnswer is string && data.correctAnswer.size() >= 1 && data.correctAnswer.size() <= 300
+        && data.explanation is string && data.explanation.size() >= 2 && data.explanation.size() <= 2000
+        && (!('prerequisiteSkill' in data) || (data.prerequisiteSkill is string && data.prerequisiteSkill.size() <= 160))
+        && (!('estimatedSeconds' in data) || (data.estimatedSeconds is number && data.estimatedSeconds >= 5 && data.estimatedSeconds <= 3600))
+        && data.source in ['curated', 'ai_generated', 'teacher_authored']
+        && data.validationStatus in ['approved', 'pending_review', 'rejected']
+        && isValidId(data.createdBy)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidAssessmentRecord(data) {
+      return data.keys().hasAll(['userId', 'studentName', 'ageBand', 'grade', 'curriculum', 'mode', 'status', 'overallScore', 'competencyCategory', 'accuracyPercent', 'totalQuestions', 'domainScores', 'responses', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'studentName', 'ageBand', 'grade', 'curriculum', 'mode', 'status', 'overallScore', 'competencyCategory', 'accuracyPercent', 'totalQuestions', 'averageTimeSec', 'domainScores', 'responses', 'aiDiagnosis', 'createdAt', 'updatedAt'])
+        && isValidId(data.userId)
+        && data.studentName is string && data.studentName.size() >= 1 && data.studentName.size() <= 120
+        && data.ageBand is string && data.ageBand.size() >= 2 && data.ageBand.size() <= 32
+        && data.grade is string && data.grade.size() >= 1 && data.grade.size() <= 40
+        && data.curriculum is string && data.curriculum.size() >= 1 && data.curriculum.size() <= 80
+        && data.mode in ['comprehensive', 'domain_focused', 'diagnostic_recheck']
+        && data.status in ['in_progress', 'paused', 'completed']
+        && data.overallScore is number && data.overallScore >= 0 && data.overallScore <= 100
+        && data.competencyCategory in ['Beginner', 'Developing', 'Proficient', 'Advanced', 'Expert']
+        && data.accuracyPercent is number && data.accuracyPercent >= 0 && data.accuracyPercent <= 100
+        && data.totalQuestions is number && data.totalQuestions >= 0 && data.totalQuestions <= 100
+        && (!('averageTimeSec' in data) || (data.averageTimeSec is number && data.averageTimeSec >= 0 && data.averageTimeSec <= 7200))
+        && data.domainScores is list && data.domainScores.size() <= 15 && (data.domainScores.size() == 0 || data.domainScores[0] is map)
+        && data.responses is list && data.responses.size() <= 100 && (data.responses.size() == 0 || data.responses[0] is map)
+        && (!('aiDiagnosis' in data) || data.aiDiagnosis is map)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidRemedialPlan(data) {
+      return data.keys().hasAll(['userId', 'assessmentId', 'interventionLevel', 'overallProgress', 'objectives', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'assessmentId', 'interventionLevel', 'overallProgress', 'objectives', 'createdAt', 'updatedAt'])
+        && isValidId(data.userId)
+        && isValidId(data.assessmentId)
+        && data.interventionLevel in ['Level A: Foundational Support', 'Level B: Conceptual Reinforcement', 'Level C: Advanced Development']
+        && data.overallProgress is number && data.overallProgress >= 0 && data.overallProgress <= 100
+        && data.objectives is list && data.objectives.size() <= 25 && (data.objectives.size() == 0 || data.objectives[0] is map)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidQuizAttempt(data) {
+      return data.keys().hasAll(['userId', 'domain', 'mode', 'score', 'totalQuestions', 'accuracyPercent', 'xpEarned', 'createdAt'])
+        && data.keys().hasOnly(['userId', 'domain', 'subskill', 'mode', 'score', 'totalQuestions', 'accuracyPercent', 'xpEarned', 'createdAt'])
+        && isValidId(data.userId)
+        && data.domain is string && data.domain.size() >= 2 && data.domain.size() <= 80
+        && (!('subskill' in data) || (data.subskill is string && data.subskill.size() <= 100))
+        && data.mode in ['daily', 'topic', 'adaptive', 'revision', 'challenge', 'timed', 'remedial_check']
+        && data.score is number && data.score >= 0 && data.score <= 100
+        && data.totalQuestions is number && data.totalQuestions >= 1 && data.totalQuestions <= 50
+        && data.accuracyPercent is number && data.accuracyPercent >= 0 && data.accuracyPercent <= 100
+        && data.xpEarned is number && data.xpEarned >= 0 && data.xpEarned <= 5000
+        && data.createdAt is timestamp;
+    }
+
+    function isValidOlympiadAttempt(data) {
+      return data.keys().hasAll(['userId', 'problemId', 'category', 'difficulty', 'submittedAnswer', 'isCorrect', 'hintsUsed', 'timeSpentSec', 'reasoningScore', 'xpEarned', 'createdAt'])
+        && data.keys().hasOnly(['userId', 'problemId', 'category', 'difficulty', 'submittedAnswer', 'reasoningText', 'isCorrect', 'hintsUsed', 'timeSpentSec', 'reasoningScore', 'xpEarned', 'createdAt'])
+        && isValidId(data.userId)
+        && isValidId(data.problemId)
+        && data.category is string && data.category.size() >= 2 && data.category.size() <= 80
+        && data.difficulty is string && data.difficulty.size() >= 2 && data.difficulty.size() <= 60
+        && data.submittedAnswer is string && data.submittedAnswer.size() >= 1 && data.submittedAnswer.size() <= 300
+        && (!('reasoningText' in data) || (data.reasoningText is string && data.reasoningText.size() <= 3000))
+        && data.isCorrect is bool
+        && data.hintsUsed is number && data.hintsUsed >= 0 && data.hintsUsed <= 10
+        && data.timeSpentSec is number && data.timeSpentSec >= 0 && data.timeSpentSec <= 14400
+        && data.reasoningScore is number && data.reasoningScore >= 0 && data.reasoningScore <= 100
+        && data.xpEarned is number && data.xpEarned >= 0 && data.xpEarned <= 5000
+        && data.createdAt is timestamp;
+    }
+
+    function isValidWorksheetDoc(data) {
+      return data.keys().hasAll(['ownerId', 'title', 'domain', 'grade', 'difficulty', 'worksheetType', 'questions', 'createdAt'])
+        && data.keys().hasOnly(['ownerId', 'title', 'domain', 'grade', 'difficulty', 'worksheetType', 'questions', 'createdAt'])
+        && isValidId(data.ownerId)
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 160
+        && data.domain is string && data.domain.size() >= 2 && data.domain.size() <= 80
+        && data.grade is string && data.grade.size() >= 1 && data.grade.size() <= 40
+        && data.difficulty is number && data.difficulty >= 1 && data.difficulty <= 5
+        && data.worksheetType in ['practice', 'remedial', 'revision', 'advanced', 'olympiad']
+        && data.questions is list && data.questions.size() <= 30 && (data.questions.size() == 0 || data.questions[0] is map)
+        && data.createdAt is timestamp;
+    }
+
+    function isValidTutorSession(data) {
+      return data.keys().hasAll(['userId', 'mode', 'topic', 'messages', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'mode', 'topic', 'messages', 'createdAt', 'updatedAt'])
+        && isValidId(data.userId)
+        && data.mode in ['teach_me', 'give_hint', 'check_solution']
+        && data.topic is string && data.topic.size() >= 1 && data.topic.size() <= 160
+        && data.messages is list && data.messages.size() <= 50 && (data.messages.size() == 0 || data.messages[0] is map)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidNotificationItem(data) {
+      return data.keys().hasAll(['userId', 'title', 'message', 'category', 'read', 'createdAt'])
+        && data.keys().hasOnly(['userId', 'title', 'message', 'category', 'read', 'createdAt'])
+        && isValidId(data.userId)
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 160
+        && data.message is string && data.message.size() >= 1 && data.message.size() <= 600
+        && data.category in ['assessment', 'remedial', 'milestone', 'parent_update', 'teacher_alert', 'streak']
+        && data.read is bool
+        && data.createdAt is timestamp;
+    }
+
+    function isValidCurriculumConfig(data) {
+      return data.keys().hasAll(['name', 'status', 'verifiedByAdmin', 'updatedBy', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'country', 'status', 'verifiedByAdmin', 'notes', 'updatedBy', 'createdAt', 'updatedAt'])
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && (!('country' in data) || (data.country is string && data.country.size() <= 80))
+        && data.status in ['active', 'draft']
+        && data.verifiedByAdmin is bool
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000))
+        && isValidId(data.updatedBy)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidSystemSettings(data) {
+      return data.keys().hasAll(['reTeachThreshold', 'guidedThreshold', 'masteryThreshold', 'aiDailyLimitPerStudent', 'ageBands', 'updatedBy', 'updatedAt'])
+        && data.keys().hasOnly(['reTeachThreshold', 'guidedThreshold', 'masteryThreshold', 'aiDailyLimitPerStudent', 'ageBands', 'updatedBy', 'updatedAt'])
+        && data.reTeachThreshold is number && data.reTeachThreshold >= 0 && data.reTeachThreshold <= 100
+        && data.guidedThreshold is number && data.guidedThreshold >= 0 && data.guidedThreshold <= 100
+        && data.masteryThreshold is number && data.masteryThreshold >= 0 && data.masteryThreshold <= 100
+        && data.aiDailyLimitPerStudent is number && data.aiDailyLimitPerStudent >= 1 && data.aiDailyLimitPerStudent <= 1000
+        && data.ageBands is list && data.ageBands.size() <= 20 && (data.ageBands.size() == 0 || data.ageBands[0] is string)
+        && isValidId(data.updatedBy)
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidAuditLog(data) {
+      return data.keys().hasAll(['actorUid', 'action', 'targetType', 'details', 'createdAt'])
+        && data.keys().hasOnly(['actorUid', 'action', 'targetType', 'targetId', 'details', 'createdAt'])
+        && isValidId(data.actorUid)
+        && data.action is string && data.action.size() >= 1 && data.action.size() <= 120
+        && data.targetType is string && data.targetType.size() >= 1 && data.targetType.size() <= 80
+        && (!('targetId' in data) || (data.targetId is string && data.targetId.size() <= 128))
+        && data.details is string && data.details.size() >= 1 && data.details.size() <= 600
+        && data.createdAt is timestamp;
+    }
+
+    // --- Collection Rules ---
+
+    // Connection check doc
+    match /test/connection {
+      allow get: if isSignedIn();
+    }
+
+    // Users & Isolated Private PII
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isBootstrappedAdmin();
+      allow create: if isValidId(userId)
+        && isOwner(userId)
+        && isValidUserAccount(incoming())
+        && incoming().uid == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && (incoming().role == 'student' || isBootstrappedAdmin());
+      allow update: if isValidId(userId)
+        && isValidUserAccount(incoming())
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() || (
+            isOwner(userId)
+            && incoming().role == existing().role
+            && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'preferredLanguage', 'studyMedium', 'theme', 'schoolId', 'onboardingCompleted', 'xp', 'streak', 'longestStreak', 'lastActiveDate', 'streakDates', 'updatedAt'])
+          )
+        );
+      allow delete: if isValidId(userId) && isAdmin();
+
+      match /private/{docId} {
+        allow get: if isValidId(userId) && isValidId(docId) && (isOwner(userId) || isAdmin());
+        allow list: if isOwner(userId) || isBootstrappedAdmin();
+        allow create: if isValidId(userId) && isValidId(docId)
+          && isOwner(userId)
+          && isValidUserPrivateInfo(incoming())
+          && incoming().uid == request.auth.uid
+          && incoming().updatedAt == request.time;
+        allow update: if isValidId(userId) && isValidId(docId)
+          && isValidUserPrivateInfo(incoming())
+          && incoming().uid == existing().uid
+          && incoming().updatedAt == request.time
+          && (isOwner(userId) || isAdmin())
+          && incoming().diff(existing()).affectedKeys().hasOnly(['email', 'guardianEmail', 'guardianConsent', 'updatedAt']);
+        allow delete: if isValidId(userId) && isValidId(docId) && isAdmin();
+      }
+    }
+
+    // Student Profiles
+    match /studentProfiles/{studentId} {
+      allow get: if isValidId(studentId) && isVerified() && (
+        existing().userId == request.auth.uid
+        || existing().parentUid == request.auth.uid
+        || existing().assignedTeacherId == request.auth.uid
+        || isAdmin()
+      );
+      allow list: if isVerified() && (
+        resource.data.userId == request.auth.uid
+        || resource.data.parentUid == request.auth.uid
+        || resource.data.assignedTeacherId == request.auth.uid
+        || isBootstrappedAdmin()
+      );
+      allow create: if isValidId(studentId)
+        && isVerified()
+        && isValidStudentProfile(incoming())
+        && (incoming().userId == request.auth.uid || isTeacher() || isAdmin())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(studentId)
+        && isVerified()
+        && isValidStudentProfile(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin()
+          || (existing().userId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'dob', 'age', 'ageBand', 'grade', 'schoolName', 'schoolId', 'curriculum', 'preferredLanguage', 'studyMedium', 'priorExperience', 'parentUid', 'overallScore', 'competencyCategory', 'xp', 'streak', 'longestStreak', 'lastActiveDate', 'weeklyGoalMinutes', 'completedMinutes', 'updatedAt']))
+          || (existing().assignedTeacherId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['grade', 'assignedTeacherId', 'overallScore', 'competencyCategory', 'weeklyGoalMinutes', 'updatedAt']))
+        );
+      allow delete: if isValidId(studentId) && isAdmin();
+    }
+
+    // Classes & Subcollection Enrollments (Master Gate)
+    match /classes/{classId} {
+      allow get: if isValidId(classId) && isVerified() && (existing().teacherId == request.auth.uid || isAdmin());
+      allow list: if isVerified() && (resource.data.teacherId == request.auth.uid || isBootstrappedAdmin());
+      allow create: if isValidId(classId)
+        && isVerified()
+        && isValidClassRoom(incoming())
+        && incoming().teacherId == request.auth.uid
+        && (isTeacher() || isAdmin())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(classId)
+        && isVerified()
+        && isValidClassRoom(incoming())
+        && incoming().teacherId == existing().teacherId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (isAdmin() || (existing().teacherId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'grade', 'curriculum', 'schoolId', 'studentCount', 'updatedAt'])));
+      allow delete: if isValidId(classId) && (isAdmin() || (isVerified() && existing().teacherId == request.auth.uid));
+
+      match /enrollments/{studentId} {
+        allow get: if isValidId(classId) && isValidId(studentId) && isVerified() && (
+          get(/databases/$(database)/documents/classes/$(classId)).data.teacherId == request.auth.uid
+          || studentId == request.auth.uid
+          || isAdmin()
+        );
+        allow list: if isVerified() && (
+          resource.data.teacherId == request.auth.uid
+          || resource.data.studentUid == request.auth.uid
+          || isBootstrappedAdmin()
+        );
+        allow create: if isValidId(classId) && isValidId(studentId)
+          && isVerified()
+          && isValidClassEnrollment(incoming())
+          && exists(/databases/$(database)/documents/classes/$(classId))
+          && (get(/databases/$(database)/documents/classes/$(classId)).data.teacherId == request.auth.uid || isAdmin())
+          && incoming().classId == classId
+          && incoming().enrolledAt == request.time;
+        allow update: if isValidId(classId) && isValidId(studentId)
+          && isVerified()
+          && isValidClassEnrollment(incoming())
+          && incoming().classId == existing().classId
+          && incoming().studentUid == existing().studentUid
+          && incoming().enrolledAt == existing().enrolledAt
+          && (isAdmin() || (get(/databases/$(database)/documents/classes/$(classId)).data.teacherId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'studentName'])));
+        allow delete: if isValidId(classId) && isValidId(studentId) && (
+          isAdmin() || (isVerified() && get(/databases/$(database)/documents/classes/$(classId)).data.teacherId == request.auth.uid)
+        );
+      }
+    }
+
+    // Question Bank
+    match /questions/{questionId} {
+      allow get: if isValidId(questionId) && isVerified();
+      allow list: if isVerified() && resource.data.validationStatus in ['approved', 'pending_review', 'rejected'];
+      allow create: if isValidId(questionId)
+        && isVerified()
+        && isValidMathQuestion(incoming())
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && (isAdmin() || (isTeacher() && incoming().validationStatus == 'pending_review'));
+      allow update: if isValidId(questionId)
+        && isVerified()
+        && isValidMathQuestion(incoming())
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (isAdmin() || (existing().createdBy == request.auth.uid && isTeacher() && incoming().validationStatus == 'pending_review' && incoming().diff(existing()).affectedKeys().hasOnly(['domain', 'subskill', 'ageBand', 'grade', 'curriculum', 'learningObjective', 'difficulty', 'type', 'prompt', 'promptBn', 'options', 'correctAnswer', 'explanation', 'prerequisiteSkill', 'estimatedSeconds', 'validationStatus', 'updatedAt'])));
+      allow delete: if isValidId(questionId) && isAdmin();
+    }
+
+    // Assessments
+    match /assessments/{assessmentId} {
+      allow get: if isValidId(assessmentId) && isVerified() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isVerified() && (resource.data.userId == request.auth.uid || isBootstrappedAdmin());
+      allow create: if isValidId(assessmentId)
+        && isVerified()
+        && isValidAssessmentRecord(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(assessmentId)
+        && isVerified()
+        && isValidAssessmentRecord(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() || (
+            existing().userId == request.auth.uid
+            && existing().status != 'completed'
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'overallScore', 'competencyCategory', 'accuracyPercent', 'totalQuestions', 'averageTimeSec', 'domainScores', 'responses', 'aiDiagnosis', 'updatedAt'])
+          )
+        );
+      allow delete: if isValidId(assessmentId) && isAdmin();
+    }
+
+    // Remedial Learning Plans
+    match /remedialPlans/{planId} {
+      allow get: if isValidId(planId) && isVerified() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isVerified() && (resource.data.userId == request.auth.uid || isBootstrappedAdmin());
+      allow create: if isValidId(planId)
+        && isVerified()
+        && isValidRemedialPlan(incoming())
+        && incoming().userId == request.auth.uid
+        && exists(/databases/$(database)/documents/assessments/$(incoming().assessmentId))
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(planId)
+        && isVerified()
+        && isValidRemedialPlan(incoming())
+        && incoming().userId == existing().userId
+        && incoming().assessmentId == existing().assessmentId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() || (
+            existing().userId == request.auth.uid
+            && incoming().diff(existing()).affectedKeys().hasOnly(['overallProgress', 'objectives', 'interventionLevel', 'updatedAt'])
+          )
+        );
+      allow delete: if isValidId(planId) && isAdmin();
+    }
+
+    // Quiz Attempts
+    match /quizAttempts/{attemptId} {
+      allow get: if isValidId(attemptId) && isVerified() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isVerified() && (resource.data.userId == request.auth.uid || isBootstrappedAdmin());
+      allow create: if isValidId(attemptId)
+        && isVerified()
+        && isValidQuizAttempt(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isValidId(attemptId) && isAdmin();
+    }
+
+    // Olympiad Attempts
+    match /olympiadAttempts/{attemptId} {
+      allow get: if isValidId(attemptId) && isVerified() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isVerified() && (resource.data.userId == request.auth.uid || isBootstrappedAdmin());
+      allow create: if isValidId(attemptId)
+        && isVerified()
+        && isValidOlympiadAttempt(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isValidId(attemptId) && isAdmin();
+    }
+
+    // Worksheets
+    match /worksheets/{worksheetId} {
+      allow get: if isValidId(worksheetId) && isVerified() && (existing().ownerId == request.auth.uid || isAdmin());
+      allow list: if isVerified() && (resource.data.ownerId == request.auth.uid || isBootstrappedAdmin());
+      allow create: if isValidId(worksheetId)
+        && isVerified()
+        && isValidWorksheetDoc(incoming())
+        && incoming().ownerId == request.auth.uid
+        && incoming().createdAt == request.time;
+      allow update: if isValidId(worksheetId)
+        && isAdmin()
+        && isValidWorksheetDoc(incoming())
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'domain', 'grade', 'difficulty', 'worksheetType', 'questions']);
+      allow delete: if isValidId(worksheetId) && (isAdmin() || (isVerified() && existing().ownerId == request.auth.uid));
+    }
+
+    // AI Math Tutor Sessions
+    match /tutorSessions/{sessionId} {
+      allow get: if isValidId(sessionId) && isVerified() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isVerified() && (resource.data.userId == request.auth.uid || isBootstrappedAdmin());
+      allow create: if isValidId(sessionId)
+        && isVerified()
+        && isValidTutorSession(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(sessionId)
+        && isVerified()
+        && isValidTutorSession(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (isAdmin() || (existing().userId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['mode', 'topic', 'messages', 'updatedAt'])));
+      allow delete: if isValidId(sessionId) && (isAdmin() || (isVerified() && existing().userId == request.auth.uid));
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow get: if isValidId(notificationId) && isVerified() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isVerified() && (resource.data.userId == request.auth.uid || isBootstrappedAdmin());
+      allow create: if isValidId(notificationId)
+        && isVerified()
+        && isValidNotificationItem(incoming())
+        && (incoming().userId == request.auth.uid || isTeacher() || isAdmin())
+        && incoming().createdAt == request.time;
+      allow update: if isValidId(notificationId)
+        && isVerified()
+        && isValidNotificationItem(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && (isAdmin() || (existing().userId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['read'])));
+      allow delete: if isValidId(notificationId) && (isAdmin() || (isVerified() && existing().userId == request.auth.uid));
+    }
+
+    // Curricula
+    match /curricula/{curriculumId} {
+      allow get: if isValidId(curriculumId) && isVerified();
+      allow list: if isVerified() && resource.data.status in ['active', 'draft'];
+      allow create: if isValidId(curriculumId)
+        && isAdmin()
+        && isValidCurriculumConfig(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(curriculumId)
+        && isAdmin()
+        && isValidCurriculumConfig(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'country', 'status', 'verifiedByAdmin', 'notes', 'updatedBy', 'updatedAt']);
+      allow delete: if isValidId(curriculumId) && isAdmin();
+    }
+
+    // System Settings
+    match /systemSettings/{settingId} {
+      allow get: if isValidId(settingId) && isVerified();
+      allow list: if isVerified() && resource.data.masteryThreshold >= 0;
+      allow create: if isValidId(settingId)
+        && isAdmin()
+        && isValidSystemSettings(incoming())
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(settingId)
+        && isAdmin()
+        && isValidSystemSettings(incoming())
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['reTeachThreshold', 'guidedThreshold', 'masteryThreshold', 'aiDailyLimitPerStudent', 'ageBands', 'updatedBy', 'updatedAt']);
+      allow delete: if false;
+    }
+
+    // Audit Logs (Immutable)
+    match /auditLogs/{logId} {
+      allow get: if isValidId(logId) && isAdmin();
+      allow list: if isBootstrappedAdmin();
+      allow create: if isValidId(logId)
+        && isVerified()
+        && isValidAuditLog(incoming())
+        && incoming().actorUid == request.auth.uid
+        && incoming().createdAt == request.time;
+      allow update, delete: if false;
+    }
+  }
+}

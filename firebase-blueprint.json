@@ -1,0 +1,364 @@
+{
+  "entities": {
+    "UserAccount": {
+      "title": "UserAccount",
+      "description": "Core user role and workspace settings without sensitive PII.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "role": { "type": "string", "enum": ["student", "teacher", "parent", "school_admin", "super_admin"] },
+        "preferredLanguage": { "type": "string", "enum": ["en", "bn"] },
+        "studyMedium": { "type": "string", "enum": ["bangla_medium", "english_version"] },
+        "theme": { "type": "string", "enum": ["dark", "light"] },
+        "schoolId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]*$" },
+        "onboardingCompleted": { "type": "boolean" },
+        "xp": { "type": "number" },
+        "streak": { "type": "number" },
+        "longestStreak": { "type": "number" },
+        "lastActiveDate": { "type": "string", "minLength": 8, "maxLength": 20, "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "streakDates": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "role", "preferredLanguage", "theme", "onboardingCompleted", "xp", "streak", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated PII document for user email and guardian contact.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "maxLength": 200 },
+        "guardianEmail": { "type": "string", "maxLength": 200 },
+        "guardianConsent": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "guardianConsent", "updatedAt"]
+    },
+    "StudentProfile": {
+      "title": "StudentProfile",
+      "description": "Student onboarding, academic context, age band, and competency summary.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "studentCode": { "type": "string", "minLength": 3, "maxLength": 40, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "dob": { "type": "string", "minLength": 8, "maxLength": 20 },
+        "age": { "type": "number" },
+        "ageBand": { "type": "string", "minLength": 2, "maxLength": 32 },
+        "grade": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "schoolName": { "type": "string", "maxLength": 160 },
+        "schoolId": { "type": "string", "maxLength": 128 },
+        "curriculum": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "preferredLanguage": { "type": "string", "enum": ["en", "bn"] },
+        "studyMedium": { "type": "string", "enum": ["bangla_medium", "english_version"] },
+        "priorExperience": { "type": "string", "maxLength": 500 },
+        "parentUid": { "type": "string", "maxLength": 128 },
+        "assignedTeacherId": { "type": "string", "maxLength": 128 },
+        "overallScore": { "type": "number" },
+        "competencyCategory": { "type": "string", "enum": ["Beginner", "Developing", "Proficient", "Advanced", "Expert"] },
+        "xp": { "type": "number" },
+        "streak": { "type": "number" },
+        "longestStreak": { "type": "number" },
+        "lastActiveDate": { "type": "string", "minLength": 8, "maxLength": 20, "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "weeklyGoalMinutes": { "type": "number" },
+        "completedMinutes": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "studentCode", "name", "dob", "age", "ageBand", "grade", "curriculum", "preferredLanguage", "createdAt", "updatedAt"]
+    },
+    "ClassRoom": {
+      "title": "ClassRoom",
+      "description": "Teacher-managed classroom cohort.",
+      "type": "object",
+      "properties": {
+        "teacherId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "teacherName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "grade": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "curriculum": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "schoolId": { "type": "string", "maxLength": 128 },
+        "studentCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["teacherId", "teacherName", "name", "grade", "curriculum", "studentCount", "createdAt", "updatedAt"]
+    },
+    "ClassEnrollment": {
+      "title": "ClassEnrollment",
+      "description": "Student enrollment record inside a classroom.",
+      "type": "object",
+      "properties": {
+        "classId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "studentUid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "studentName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "teacherId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "status": { "type": "string", "enum": ["active", "archived"] },
+        "enrolledAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["classId", "studentUid", "studentName", "teacherId", "status", "enrolledAt"]
+    },
+    "MathQuestion": {
+      "title": "MathQuestion",
+      "description": "Question bank item with domain, subskill, difficulty, and review metadata.",
+      "type": "object",
+      "properties": {
+        "domain": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "subskill": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "ageBand": { "type": "string", "minLength": 2, "maxLength": 32 },
+        "grade": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "curriculum": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "learningObjective": { "type": "string", "maxLength": 300 },
+        "difficulty": { "type": "number" },
+        "type": { "type": "string", "enum": ["mcq", "multi_select", "numerical", "fill_blank", "true_false", "word_problem", "reasoning"] },
+        "prompt": { "type": "string", "minLength": 2, "maxLength": 2000 },
+        "promptBn": { "type": "string", "maxLength": 2000 },
+        "options": { "type": "array" },
+        "correctAnswer": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "explanation": { "type": "string", "minLength": 2, "maxLength": 2000 },
+        "prerequisiteSkill": { "type": "string", "maxLength": 160 },
+        "estimatedSeconds": { "type": "number" },
+        "source": { "type": "string", "enum": ["curated", "ai_generated", "teacher_authored"] },
+        "validationStatus": { "type": "string", "enum": ["approved", "pending_review", "rejected"] },
+        "createdBy": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["domain", "subskill", "ageBand", "grade", "curriculum", "difficulty", "type", "prompt", "correctAnswer", "explanation", "source", "validationStatus", "createdBy", "createdAt", "updatedAt"]
+    },
+    "AssessmentRecord": {
+      "title": "AssessmentRecord",
+      "description": "Adaptive 100-MCQ / 100-mark mathematics assessment attempt, domain scores, and AI diagnosis.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "studentName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "ageBand": { "type": "string", "minLength": 2, "maxLength": 32 },
+        "grade": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "curriculum": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "mode": { "type": "string", "enum": ["comprehensive", "domain_focused", "diagnostic_recheck"] },
+        "status": { "type": "string", "enum": ["in_progress", "paused", "completed"] },
+        "overallScore": { "type": "number" },
+        "competencyCategory": { "type": "string", "enum": ["Beginner", "Developing", "Proficient", "Advanced", "Expert"] },
+        "accuracyPercent": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "averageTimeSec": { "type": "number" },
+        "domainScores": { "type": "array" },
+        "responses": { "type": "array" },
+        "aiDiagnosis": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "studentName", "ageBand", "grade", "curriculum", "mode", "status", "overallScore", "competencyCategory", "accuracyPercent", "totalQuestions", "domainScores", "responses", "createdAt", "updatedAt"]
+    },
+    "RemedialPlan": {
+      "title": "RemedialPlan",
+      "description": "Personalized sequential remedial learning plan tied to assessment evidence.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "assessmentId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "interventionLevel": { "type": "string", "enum": ["Level A: Foundational Support", "Level B: Conceptual Reinforcement", "Level C: Advanced Development"] },
+        "overallProgress": { "type": "number" },
+        "objectives": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "assessmentId", "interventionLevel", "overallProgress", "objectives", "createdAt", "updatedAt"]
+    },
+    "QuizAttempt": {
+      "title": "QuizAttempt",
+      "description": "Smart quiz or remedial mastery check submission.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "domain": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "subskill": { "type": "string", "maxLength": 100 },
+        "mode": { "type": "string", "enum": ["daily", "topic", "adaptive", "revision", "challenge", "timed", "remedial_check"] },
+        "score": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "accuracyPercent": { "type": "number" },
+        "xpEarned": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "domain", "mode", "score", "totalQuestions", "accuracyPercent", "xpEarned", "createdAt"]
+    },
+    "OlympiadAttempt": {
+      "title": "OlympiadAttempt",
+      "description": "Student attempt in Math Olympiad Arena with reasoning quality evaluation.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "problemId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "category": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "difficulty": { "type": "string", "minLength": 2, "maxLength": 60 },
+        "submittedAnswer": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "reasoningText": { "type": "string", "maxLength": 3000 },
+        "isCorrect": { "type": "boolean" },
+        "hintsUsed": { "type": "number" },
+        "timeSpentSec": { "type": "number" },
+        "reasoningScore": { "type": "number" },
+        "xpEarned": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "problemId", "category", "difficulty", "submittedAnswer", "isCorrect", "hintsUsed", "timeSpentSec", "reasoningScore", "xpEarned", "createdAt"]
+    },
+    "WorksheetDoc": {
+      "title": "WorksheetDoc",
+      "description": "Generated or teacher-assigned mathematics worksheet.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "domain": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "grade": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "difficulty": { "type": "number" },
+        "worksheetType": { "type": "string", "enum": ["practice", "remedial", "revision", "advanced", "olympiad"] },
+        "questions": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "title", "domain", "grade", "difficulty", "worksheetType", "questions", "createdAt"]
+    },
+    "TutorSession": {
+      "title": "TutorSession",
+      "description": "AI Math Tutor interactive session.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "mode": { "type": "string", "enum": ["teach_me", "give_hint", "check_solution"] },
+        "topic": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "messages": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "mode", "topic", "messages", "createdAt", "updatedAt"]
+    },
+    "NotificationItem": {
+      "title": "NotificationItem",
+      "description": "User progress, milestone, or intervention notification.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "message": { "type": "string", "minLength": 1, "maxLength": 600 },
+        "category": { "type": "string", "enum": ["assessment", "remedial", "milestone", "parent_update", "teacher_alert", "streak"] },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "message", "category", "read", "createdAt"]
+    },
+    "CurriculumConfig": {
+      "title": "CurriculumConfig",
+      "description": "Configurable curriculum and domain/age-band definitions.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "country": { "type": "string", "maxLength": 80 },
+        "status": { "type": "string", "enum": ["active", "draft"] },
+        "verifiedByAdmin": { "type": "boolean" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "updatedBy": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "status", "verifiedByAdmin", "updatedBy", "createdAt", "updatedAt"]
+    },
+    "SystemSettings": {
+      "title": "SystemSettings",
+      "description": "Global platform configuration for age bands, mastery thresholds, and AI limits.",
+      "type": "object",
+      "properties": {
+        "reTeachThreshold": { "type": "number" },
+        "guidedThreshold": { "type": "number" },
+        "masteryThreshold": { "type": "number" },
+        "aiDailyLimitPerStudent": { "type": "number" },
+        "ageBands": { "type": "array" },
+        "updatedBy": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["reTeachThreshold", "guidedThreshold", "masteryThreshold", "aiDailyLimitPerStudent", "ageBands", "updatedBy", "updatedAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable security and academic audit trail.",
+      "type": "object",
+      "properties": {
+        "actorUid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "action": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "targetType": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "details": { "type": "string", "maxLength": 600 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["actorUid", "action", "targetType", "details", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserAccount" },
+      "description": "Core user accounts and role assignments."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Isolated user PII such as email and guardian consent."
+    },
+    "/studentProfiles/{studentId}": {
+      "schema": { "$ref": "#/entities/StudentProfile" },
+      "description": "Student academic onboarding profiles and competency summaries."
+    },
+    "/classes/{classId}": {
+      "schema": { "$ref": "#/entities/ClassRoom" },
+      "description": "Teacher-managed classes."
+    },
+    "/classes/{classId}/enrollments/{studentId}": {
+      "schema": { "$ref": "#/entities/ClassEnrollment" },
+      "description": "Student enrollments inside classes."
+    },
+    "/questions/{questionId}": {
+      "schema": { "$ref": "#/entities/MathQuestion" },
+      "description": "Question bank items across all 12 domains."
+    },
+    "/assessments/{assessmentId}": {
+      "schema": { "$ref": "#/entities/AssessmentRecord" },
+      "description": "Adaptive mathematics assessments and diagnostic reports."
+    },
+    "/remedialPlans/{planId}": {
+      "schema": { "$ref": "#/entities/RemedialPlan" },
+      "description": "Personalized remedial learning paths."
+    },
+    "/quizAttempts/{attemptId}": {
+      "schema": { "$ref": "#/entities/QuizAttempt" },
+      "description": "Quiz and mastery check attempts."
+    },
+    "/olympiadAttempts/{attemptId}": {
+      "schema": { "$ref": "#/entities/OlympiadAttempt" },
+      "description": "Math Olympiad Arena submissions."
+    },
+    "/worksheets/{worksheetId}": {
+      "schema": { "$ref": "#/entities/WorksheetDoc" },
+      "description": "Generated and assigned worksheets."
+    },
+    "/tutorSessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/TutorSession" },
+      "description": "AI Math Tutor conversation sessions."
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/NotificationItem" },
+      "description": "Student, teacher, and parent notifications."
+    },
+    "/curricula/{curriculumId}": {
+      "schema": { "$ref": "#/entities/CurriculumConfig" },
+      "description": "Configurable curriculum definitions."
+    },
+    "/systemSettings/{settingId}": {
+      "schema": { "$ref": "#/entities/SystemSettings" },
+      "description": "Platform-wide configuration settings."
+    },
+    "/auditLogs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Immutable security and academic audit log."
+    }
+  }
+}
